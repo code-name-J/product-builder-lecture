@@ -1,1 +1,221 @@
-/* Add styles here */
+:root {
+    --bg-color: #050510;
+    --card-bg: rgba(15, 15, 35, 0.8);
+    --gold: #d4af37;
+    --gold-glow: rgba(212, 175, 55, 0.5);
+    --text-light: #e0e0e0;
+    --text-dim: #a0a0a0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-light);
+    font-family: 'Lora', serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+/* Stars Background */
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+    z-index: -1;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    text-align: center;
+    z-index: 1;
+}
+
+header {
+    margin-bottom: 40px;
+}
+
+.mystical-title {
+    font-family: 'Cinzel', serif;
+    font-size: 3rem;
+    color: var(--gold);
+    text-shadow: 0 0 15px var(--gold-glow);
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+/* Card Styles */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--gold);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), inset 0 0 15px var(--gold-glow);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, opacity 0.5s ease;
+    animation: fadeIn 1s ease-out;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.instruction {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+/* Form Styles */
+.input-group {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    color: var(--gold);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 5px;
+    padding: 12px;
+    color: white;
+    font-family: 'Lora', serif;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: var(--gold);
+}
+
+.mystical-btn {
+    background: var(--gold);
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    padding: 15px;
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.mystical-btn:hover {
+    background: #f0c541;
+    box-shadow: 0 0 20px var(--gold-glow);
+    transform: translateY(-2px);
+}
+
+.mystical-btn.outline {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+}
+
+.mystical-btn.outline:hover {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+/* Result Styles */
+.result-title {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.fortune-details {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    margin: 20px 0;
+}
+
+.fortune-item {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.fortune-item .icon {
+    font-size: 1.5rem;
+}
+
+.fortune-item h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    margin-bottom: 5px;
+}
+
+.fortune-item p {
+    line-height: 1.5;
+    color: var(--text-light);
+}
+
+/* Loader */
+.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.oracle-loader {
+    padding: 40px;
+}
+
+.loader-circle {
+    width: 60px;
+    height: 60px;
+    border: 3px solid transparent;
+    border-top: 3px solid var(--gold);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .mystical-title {
+        font-size: 2.2rem;
+    }
+}
