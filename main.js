@@ -1,80 +1,143 @@
-const fortunes = {
-    general: [
-        "오늘 당신의 기운은 밤하늘의 북극성처럼 맑고 뚜렷합니다. 망설이던 일을 시작하기에 최고의 날입니다.",
-        "오늘은 구름 뒤에 숨은 달과 같습니다. 조용히 내면을 살피며 기회를 기다리는 것이 현명합니다.",
-        "별들이 당신의 성공을 축복하고 있습니다. 예상치 못한 곳에서 행운의 소식이 들려올 것입니다.",
-        "흐르는 물처럼 자연스러운 흐름에 몸을 맡기세요. 억지로 밀어붙이기보다는 유연한 대처가 필요합니다.",
-        "오랫동안 노력해온 일에 대한 결실이 맺히기 시작합니다. 자신감을 가지고 앞으로 나아가세요."
-    ],
-    wealth: [
-        "금전운이 상승하고 있습니다. 뜻밖의 횡재수나 이익이 발생할 수 있는 운수 좋은 날입니다.",
-        "지출에 주의가 필요한 날입니다. 큰 투자보다는 현재의 자산을 지키는 데 집중하세요.",
-        "작은 씨앗이 거대한 나무가 되듯, 오늘의 작은 절약이 미래의 큰 재산이 될 것입니다.",
-        "동쪽에서 귀인이 나타나 재물에 관한 유익한 정보를 가져다줄 것입니다.",
-        "재물보다는 사람을 얻는 것에 집중하세요. 결국 그것이 더 큰 이득으로 돌아올 것입니다."
-    ],
-    love: [
-        "새로운 인연이 다가오고 있습니다. 마음의 문을 열어두면 따뜻한 온기가 스며들 것입니다.",
-        "이미 곁에 있는 사람의 소중함을 다시 한번 느끼게 되는 날입니다. 진심을 전해보세요.",
-        "작은 오해가 생길 수 있으니 대화에 신중을 기하세요. 경청하는 태도가 관계를 회복시킵니다.",
-        "사랑의 여신이 당신을 향해 미소 짓고 있습니다. 고백을 계획 중이라면 오늘이 적기입니다.",
-        "혼자만의 시간을 즐기며 스스로를 사랑하는 법을 배우는 하루가 될 것입니다."
-    ]
-};
+const cities = [
+    { name: "도쿄, 일본 (GMT+9)", tz: "Asia/Tokyo", lat: 35.6895, lon: 139.6917 },
+    { name: "뉴욕, 미국 (GMT-5)", tz: "America/New_York", lat: 40.7128, lon: -74.0060 },
+    { name: "덴버, 미국 (GMT-7)", tz: "America/Denver", lat: 39.7392, lon: -104.9903 },
+    { name: "런던, 영국 (GMT+0)", tz: "Europe/London", lat: 51.5074, lon: -0.1278 },
+    { name: "파리, 프랑스 (GMT+1)", tz: "Europe/Paris", lat: 48.8566, lon: 2.3522 },
+    { name: "시드니, 호주 (GMT+11)", tz: "Australia/Sydney", lat: -33.8688, lon: 151.2093 },
+    { name: "두바이, UAE (GMT+4)", tz: "Asia/Dubai", lat: 25.2048, lon: 55.2708 },
+    { name: "방콕, 태국 (GMT+7)", tz: "Asia/Bangkok", lat: 13.7563, lon: 100.5018 },
+    { name: "싱가포르 (GMT+8)", tz: "Asia/Singapore", lat: 1.3521, lon: 103.8198 },
+    { name: "로스앤젤레스, 미국 (GMT-8)", tz: "America/Los_Angeles", lat: 34.0522, lon: -118.2437 },
+    { name: "베를린, 독일 (GMT+1)", tz: "Europe/Berlin", lat: 52.5200, lon: 13.4050 },
+    { name: "모스크바, 러시아 (GMT+3)", tz: "Europe/Moscow", lat: 55.7558, lon: 37.6173 },
+    { name: "상파울루, 브라질 (GMT-3)", tz: "America/Sao_Paulo", lat: -23.5505, lon: -46.6333 },
+    { name: "홍콩, 중국 (GMT+8)", tz: "Asia/Hong_Kong", lat: 22.3193, lon: 114.1694 },
+    { name: "베이징, 중국 (GMT+8)", tz: "Asia/Shanghai", lat: 39.9042, lon: 116.4074 },
+    { name: "로마, 이탈리아 (GMT+1)", tz: "Europe/Rome", lat: 41.9028, lon: 12.4964 },
+    { name: "마드리드, 스페인 (GMT+1)", tz: "Europe/Madrid", lat: 40.4168, lon: -3.7038 }
+];
 
-document.getElementById('fortune-btn').addEventListener('click', function() {
-    const name = document.getElementById('name').value;
-    const birthdate = document.getElementById('birthdate').value;
+const kstInput = document.getElementById('kst-input');
+const setNowBtn = document.getElementById('set-now');
+const citySelect = document.getElementById('city-select');
+const citySearch = document.getElementById('city-search');
+const resultContainer = document.getElementById('result-container');
+const localTimeDisplay = document.getElementById('local-time');
+const localDateDisplay = document.getElementById('local-date');
+const targetCityLabel = document.getElementById('target-city-label');
+const displayCityName = document.getElementById('display-city-name');
 
-    if (!name || !birthdate) {
-        alert("이름과 생년월일을 모두 입력해주세요.");
-        return;
-    }
+const tempDisplay = document.getElementById('temp-display');
+const weatherDesc = document.getElementById('weather-desc');
+const weatherIconContainer = document.getElementById('weather-icon');
+const humidityDisplay = document.getElementById('humidity');
+const windspeedDisplay = document.getElementById('windspeed');
+const apparentTempDisplay = document.getElementById('apparent-temp');
 
-    showLoading();
-    
-    // Simulate reading the stars
-    setTimeout(() => {
-        const fortune = generateFortune(name, birthdate);
-        displayFortune(fortune);
-    }, 2000);
-});
+// Initialize Lucide icons
+lucide.createIcons();
 
-document.getElementById('retry-btn').addEventListener('click', function() {
-    document.getElementById('result-section').classList.add('hidden');
-    document.getElementById('input-section').classList.remove('hidden');
-});
-
-function showLoading() {
-    document.getElementById('input-section').classList.add('hidden');
-    document.getElementById('loading-section').classList.remove('hidden');
+// Populate city dropdown
+function populateCities(filter = '') {
+    citySelect.innerHTML = '';
+    const filtered = cities.filter(c => c.name.includes(filter));
+    filtered.forEach((city) => {
+        const originalIndex = cities.indexOf(city);
+        const option = document.createElement('option');
+        option.value = originalIndex;
+        option.textContent = city.name;
+        citySelect.appendChild(option);
+    });
+    if (filtered.length > 0) updateDisplay();
 }
 
-function generateFortune(name, birthdate) {
-    const today = new Date().toISOString().split('T')[0];
-    const seed = name + birthdate + today;
+citySearch.addEventListener('input', (e) => populateCities(e.target.value));
+
+function setCurrentTime() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+    kstInput.value = localISOTime;
+    updateDisplay();
+}
+
+setNowBtn.addEventListener('click', setCurrentTime);
+
+function getWeatherIcon(code) {
+    if (code === 0) return 'sun';
+    if (code <= 3) return 'cloud-sun';
+    if (code <= 48) return 'cloud';
+    if (code <= 67) return 'cloud-rain';
+    if (code <= 77) return 'cloud-snow';
+    if (code <= 82) return 'cloud-showers-heavy';
+    if (code <= 99) return 'cloud-lightning';
+    return 'cloud';
+}
+
+async function updateDisplay() {
+    const cityIndex = citySelect.value;
+    const city = cities[cityIndex];
+    const inputVal = kstInput.value;
     
-    // Simple hash function
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-        hash = ((hash << 5) - hash) + seed.charCodeAt(i);
-        hash |= 0; // Convert to 32bit integer
-    }
+    if (!city || !inputVal) return;
+
+    resultContainer.classList.remove('hidden');
+    targetCityLabel.textContent = city.name.split(',')[0];
+    displayCityName.textContent = city.name;
+
+    // 1. Convert Time
+    const date = new Date(inputVal);
     
-    const absHash = Math.abs(hash);
-    
-    return {
-        general: fortunes.general[absHash % fortunes.general.length],
-        wealth: fortunes.wealth[absHash % fortunes.wealth.length],
-        love: fortunes.love[absHash % fortunes.love.length]
+    const timeOptions = {
+        timeZone: city.tz,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
     };
+    const dateOptions = {
+        timeZone: city.tz,
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short'
+    };
+
+    localTimeDisplay.textContent = new Intl.DateTimeFormat('ko-KR', timeOptions).format(date);
+    localDateDisplay.textContent = new Intl.DateTimeFormat('ko-KR', dateOptions).format(date);
+
+    // 2. Fetch Weather
+    try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true&hourly=relative_humidity_2m,apparent_temperature`);
+        const data = await res.json();
+        
+        const current = data.current_weather;
+        tempDisplay.textContent = `${Math.round(current.temperature)}°C`;
+        windspeedDisplay.textContent = `${current.windspeed}km/h`;
+        
+        // Get additional metrics from hourly (first index as proxy for current)
+        humidityDisplay.textContent = `${data.hourly.relative_humidity_2m[0]}%`;
+        apparentTempDisplay.textContent = `${Math.round(data.hourly.apparent_temperature[0])}°C`;
+        
+        const weatherCodes = {
+            0: "맑음", 1: "대체로 맑음", 2: "흐림", 3: "매우 흐림",
+            45: "안개", 48: "서리 안개", 51: "가랑비", 61: "비", 71: "눈",
+            80: "소나기", 95: "뇌우"
+        };
+        weatherDesc.textContent = weatherCodes[current.weathercode] || "정보 없음";
+        
+        const iconName = getWeatherIcon(current.weathercode);
+        weatherIconContainer.innerHTML = `<i data-lucide="${iconName}" size="48"></i>`;
+        lucide.createIcons();
+        
+    } catch (error) {
+        console.error("Weather fetch failed:", error);
+        weatherDesc.textContent = "날씨 정보 오류";
+    }
 }
 
-function displayFortune(fortune) {
-    document.getElementById('loading-section').classList.add('hidden');
-    document.getElementById('result-section').classList.remove('hidden');
-    
-    document.getElementById('general-fortune').innerText = fortune.general;
-    document.getElementById('wealth-fortune').innerText = fortune.wealth;
-    document.getElementById('love-fortune').innerText = fortune.love;
-}
+kstInput.addEventListener('change', updateDisplay);
+citySelect.addEventListener('change', updateDisplay);
+
+// Initial setup
+populateCities();
+setCurrentTime();
