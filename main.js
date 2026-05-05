@@ -142,6 +142,9 @@ async function updateDisplay() {
 
     // 3. Travel Insights Logic
     updateInsights(city, month);
+
+    // 4. Reload Disqus for specific city
+    reloadDisqus(city.name);
 }
 
 function updateInsights(city, month) {
@@ -174,6 +177,34 @@ function updateInsights(city, month) {
         congestionLevel.textContent = "매우 혼잡";
         congestionLevel.className = "text-xs font-bold px-2 py-1 rounded bg-red-100 text-red-600";
         congestionBar.className = "h-full bg-red-500 transition-all duration-1000";
+    }
+}
+
+// Disqus Integration
+function reloadDisqus(cityName) {
+    const pageUrl = window.location.href.split('?')[0] + '?city=' + encodeURIComponent(cityName);
+    const pageIdentifier = 'city_' + cityName;
+
+    if (typeof DISQUS !== 'undefined') {
+        DISQUS.reset({
+            reload: true,
+            config: function () {
+                this.page.identifier = pageIdentifier;
+                this.page.url = pageUrl;
+            }
+        });
+    } else {
+        // Initial load
+        window.disqus_config = function () {
+            this.page.url = pageUrl;
+            this.page.identifier = pageIdentifier;
+        };
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://productbuilder-lqdabenmjt.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
     }
 }
 
