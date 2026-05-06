@@ -8,12 +8,14 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-xl rounded-2xl p-8 space-y-6">
         <header class="text-center">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">트래블 타이밍 & 혼잡도</h1>
-            <p class="text-gray-500">최적의 여행 시기와 현지 상황을 확인하세요</p>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">글로벌 트래블 가이드</h1>
+            <p class="text-gray-500">날씨, 일정, 그리고 AI 국가 인식까지</p>
         </header>
 
         <!-- Tab Navigation -->
@@ -21,20 +23,23 @@
             <button id="tab-status" class="flex-1 min-w-fit flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all bg-white shadow-sm text-indigo-600">
                 <i data-lucide="sun" size="16"></i> 날씨/시간
             </button>
+            <button id="tab-classifier" class="flex-1 min-w-fit flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-gray-500 hover:text-indigo-600">
+                <i data-lucide="camera" size="16"></i> 국가 인식
+            </button>
             <button id="tab-insights" class="flex-1 min-w-fit flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-gray-500 hover:text-indigo-600">
-                <i data-lucide="trending-up" size="16"></i> 여행 인사이트
+                <i data-lucide="trending-up" size="16"></i> 인사이트
             </button>
             <button id="tab-planner" class="flex-1 min-w-fit flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-gray-500 hover:text-indigo-600">
                 <i data-lucide="calendar" size="16"></i> 플래너
             </button>
             <button id="tab-partnership" class="flex-1 min-w-fit flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-gray-500 hover:text-indigo-600">
-                <i data-lucide="mail" size="16"></i> 제휴 문의
+                <i data-lucide="mail" size="16"></i> 제휴
             </button>
         </nav>
 
         <!-- Section: Status (Time & Weather) -->
         <div id="section-status" class="space-y-6">
-            <!-- Time Comparison Grid -->
+            <!-- ... existing content ... -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Korean Time (Source) -->
                 <div class="bg-white/50 p-4 rounded-xl border border-gray-100 shadow-sm">
@@ -117,6 +122,68 @@
                         </div>
                     </div>
                     <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Classifier -->
+        <div id="section-classifier" class="hidden space-y-6">
+            <div class="bg-white/50 p-6 rounded-2xl border border-gray-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="scan-eye" class="text-indigo-500"></i> AI 국가 이미지 인식
+                    </h3>
+                    <div id="model-status" class="flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-50 px-2 py-1 rounded">
+                        <div class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>
+                        모델 로딩 중
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- Upload Area -->
+                    <div id="upload-area" class="border-2 border-dashed border-indigo-200 rounded-2xl p-8 text-center hover:border-indigo-400 transition-colors cursor-pointer group bg-white/30">
+                        <input type="file" id="image-upload" accept="image/*" class="hidden">
+                        <div class="space-y-2">
+                            <i data-lucide="upload-cloud" class="mx-auto text-indigo-300 group-hover:text-indigo-500 transition-colors" size="48"></i>
+                            <p class="text-gray-600 font-medium">사진을 드래그하거나 클릭하여 업로드하세요</p>
+                            <p class="text-xs text-gray-400">일본, 미국, 영국, 프랑스, 태국 이미지를 인식합니다</p>
+                        </div>
+                    </div>
+
+                    <!-- Webcam Button -->
+                    <div class="flex justify-center">
+                        <button id="webcam-btn" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">
+                            <i data-lucide="webcam" size="16"></i> 실시간 웹캠 사용하기
+                        </button>
+                    </div>
+
+                    <!-- Preview and Result Area -->
+                    <div id="prediction-container" class="hidden space-y-4 animate-in fade-in duration-500">
+                        <div class="relative rounded-2xl overflow-hidden shadow-xl aspect-video bg-gray-900 flex items-center justify-center">
+                            <img id="image-preview" class="hidden max-h-full object-contain">
+                            <div id="webcam-wrapper" class="hidden w-full h-full"></div>
+                            <div id="loading-spinner" class="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center hidden">
+                                <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                                <p class="text-xs font-bold text-indigo-600">모델 분석 중...</p>
+                            </div>
+                        </div>
+
+                        <div id="result-display" class="bg-gradient-to-br from-indigo-600 to-purple-700 p-6 rounded-2xl text-white shadow-xl relative overflow-hidden">
+                            <div class="relative z-10">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-xs font-bold uppercase tracking-widest text-indigo-200">AI 분석 결과</span>
+                                    <span id="confidence-badge" class="px-2 py-1 rounded bg-white/20 text-[10px] font-bold">확신도 --%</span>
+                                </div>
+                                <h2 id="top-prediction" class="text-4xl font-black mb-1">---</h2>
+                                <p id="prediction-desc" class="text-sm text-indigo-100 opacity-80">이미지를 분석하여 매칭되는 국가를 찾았습니다.</p>
+                                
+                                <div id="label-container" class="mt-6 space-y-3 pt-6 border-t border-white/10">
+                                    <!-- Prediction bars will be here -->
+                                </div>
+                            </div>
+                            <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

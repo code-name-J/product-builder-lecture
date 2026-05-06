@@ -26,12 +26,14 @@ const apparentTempDisplay = document.getElementById('apparent-temp');
 // Tab Elements
 const tabs = {
     status: document.getElementById('tab-status'),
+    classifier: document.getElementById('tab-classifier'),
     insights: document.getElementById('tab-insights'),
     planner: document.getElementById('tab-planner'),
     partnership: document.getElementById('tab-partnership')
 };
 const sections = {
     status: document.getElementById('section-status'),
+    classifier: document.getElementById('section-classifier'),
     insights: document.getElementById('section-insights'),
     planner: document.getElementById('section-planner'),
     partnership: document.getElementById('section-partnership')
@@ -54,6 +56,13 @@ function switchTab(activeTab) {
             sections[key].classList.remove('hidden');
             tabs[key].classList.add('bg-white', 'shadow-sm', 'text-indigo-600');
             tabs[key].classList.remove('text-gray-500');
+            
+            // Special handling for classifier tab
+            if (activeTab === 'classifier') {
+                initClassifier();
+            } else {
+                stopWebcam();
+            }
         } else {
             sections[key].classList.add('hidden');
             tabs[key].classList.remove('bg-white', 'shadow-sm', 'text-indigo-600');
@@ -63,6 +72,7 @@ function switchTab(activeTab) {
 }
 
 tabs.status.addEventListener('click', () => switchTab('status'));
+tabs.classifier.addEventListener('click', () => switchTab('classifier'));
 tabs.insights.addEventListener('click', () => switchTab('insights'));
 tabs.planner.addEventListener('click', () => switchTab('planner'));
 tabs.partnership.addEventListener('click', () => switchTab('partnership'));
@@ -326,3 +336,187 @@ citySelect.addEventListener('change', updateDisplay);
 // Initial setup
 populateCities();
 setCurrentTime();
+
+// --- Classifier Logic ---
+const MODEL_URL = "https://teachablemachine.withgoogle.com/models/kWbXU9-1R/";
+let model, webcam, maxPredictions;
+let isModelLoading = false;
+
+async function initClassifier() {
+    if (model || isModelLoading) return;
+    
+    isModelLoading = true;
+    const modelStatus = document.getElementById('model-status');
+    
+    try {
+        const modelURL = MODEL_URL + "model.json";
+        const metadataURL = MODEL_URL + "metadata.json";
+        
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+        
+        modelStatus.innerHTML = `<div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>모델 준비됨`;
+        modelStatus.className = "flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded";
+    } catch (error) {
+        console.error("Model load failed:", error);
+        modelStatus.innerHTML = `<div class="w-1.5 h-1.5 bg-red-500 rounded-full"></div>로딩 실패`;
+        modelStatus.className = "flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded";
+    } finally {
+        isModelLoading = false;
+    }
+}
+
+// File Upload Logic
+const uploadArea = document.getElementById('upload-area');
+const imageUpload = document.getElementById('image-upload');
+const imagePreview = document.getElementById('image-preview');
+const predictionContainer = document.getElementById('prediction-container');
+const loadingSpinner = document.getElementById('loading-spinner');
+
+uploadArea.addEventListener('click', () => imageUpload.click());
+
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('border-indigo-500', 'bg-indigo-50/50');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('border-indigo-500', 'bg-indigo-50/50');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('border-indigo-500', 'bg-indigo-50/50');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+        handleImageUpload(file);
+    }
+});
+
+imageUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) handleImageUpload(file);
+});
+
+async function handleImageUpload(file) {
+    stopWebcam();
+    predictionContainer.classList.remove('hidden');
+    imagePreview.classList.remove('hidden');
+    document.getElementById('webcam-wrapper').classList.add('hidden');
+    loadingSpinner.classList.remove('hidden');
+    
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        imagePreview.src = e.target.result;
+        imagePreview.onload = async () => {
+            if (!model) await initClassifier();
+            await predictImage(imagePreview);
+            loadingSpinner.classList.add('hidden');
+        };
+    };
+    reader.readAsDataURL(file);
+}
+
+async function predictImage(imageElement) {
+    const prediction = await model.predict(imageElement);
+    updatePredictionUI(prediction);
+}
+
+// Webcam Logic
+const webcamBtn = document.getElementById('webcam-btn');
+const webcamWrapper = document.getElementById('webcam-wrapper');
+let isWebcamRunning = false;
+
+webcamBtn.addEventListener('click', async () => {
+    if (isWebcamRunning) {
+        stopWebcam();
+        return;
+    }
+    
+    predictionContainer.classList.remove('hidden');
+    imagePreview.classList.add('hidden');
+    webcamWrapper.classList.remove('hidden');
+    loadingSpinner.classList.remove('hidden');
+    
+    if (!model) await initClassifier();
+    
+    try {
+        const flip = true;
+        webcam = new tmImage.Webcam(400, 400, flip);
+        await webcam.setup();
+        await webcam.play();
+        
+        webcamWrapper.innerHTML = '';
+        webcamWrapper.appendChild(webcam.canvas);
+        webcam.canvas.className = "w-full h-full object-cover";
+        
+        isWebcamRunning = true;
+        webcamBtn.innerHTML = `<i data-lucide="stop-circle" size="16"></i> 웹캠 중지하기`;
+        webcamBtn.classList.replace('text-indigo-600', 'text-red-600');
+        webcamBtn.classList.replace('bg-indigo-50', 'bg-red-50');
+        lucide.createIcons();
+        
+        loadingSpinner.classList.add('hidden');
+        window.requestAnimationFrame(webcamLoop);
+    } catch (error) {
+        console.error("Webcam setup failed:", error);
+        alert("웹캠을 시작할 수 없습니다. 권한을 확인해주세요.");
+        loadingSpinner.classList.add('hidden');
+    }
+});
+
+function stopWebcam() {
+    if (webcam) {
+        webcam.stop();
+        webcam = null;
+    }
+    isWebcamRunning = false;
+    webcamBtn.innerHTML = `<i data-lucide="webcam" size="16"></i> 실시간 웹캠 사용하기`;
+    webcamBtn.classList.replace('text-red-600', 'text-indigo-600');
+    webcamBtn.classList.replace('bg-red-50', 'bg-indigo-50');
+    lucide.createIcons();
+}
+
+async function webcamLoop() {
+    if (!isWebcamRunning) return;
+    webcam.update();
+    await predictImage(webcam.canvas);
+    window.requestAnimationFrame(webcamLoop);
+}
+
+// UI Update Logic
+function updatePredictionUI(predictions) {
+    const topPrediction = predictions.reduce((prev, current) => (prev.probability > current.probability) ? prev : current);
+    
+    document.getElementById('top-prediction').textContent = topPrediction.className;
+    document.getElementById('confidence-badge').textContent = `확신도 ${Math.round(topPrediction.probability * 100)}%`;
+    
+    const labelContainer = document.getElementById('label-container');
+    labelContainer.innerHTML = '';
+    
+    predictions.forEach(p => {
+        const percentage = Math.round(p.probability * 100);
+        const barDiv = document.createElement('div');
+        barDiv.className = 'space-y-1';
+        barDiv.innerHTML = `
+            <div class="flex justify-between text-[10px] font-bold text-indigo-100 uppercase">
+                <span>${p.className}</span>
+                <span>${percentage}%</span>
+            </div>
+            <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                <div class="h-full bg-white transition-all duration-500" style="width: ${percentage}%"></div>
+            </div>
+        `;
+        labelContainer.appendChild(barDiv);
+    });
+
+    // Provide description based on country
+    const descriptions = {
+        "일본": "전통과 현대가 공존하는 섬나라, 일본입니다.",
+        "미국": "다양한 문화의 중심지, 미국입니다.",
+        "영국": "전통과 역사가 깊은 신사의 나라, 영국입니다.",
+        "프랑스": "예술과 낭만의 도시가 가득한 프랑스입니다.",
+        "태국": "미소와 열정의 나라, 태국입니다."
+    };
+    document.getElementById('prediction-desc').textContent = descriptions[topPrediction.className] || "이미지를 분석하여 국가를 식별했습니다.";
+}
