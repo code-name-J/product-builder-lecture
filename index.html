@@ -35,6 +35,12 @@
             <button id="tab-planner" class="flex-1 min-w-fit flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-gray-500 hover:text-indigo-600">
                 <i data-lucide="calendar" size="16"></i> 플래너
             </button>
+            <button id="tab-guide" class="flex-1 min-w-fit flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-gray-500 hover:text-indigo-600">
+                <i data-lucide="book-open" size="16"></i> 여행 가이드
+            </button>
+            <button id="tab-about" class="flex-1 min-w-fit flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-gray-500 hover:text-indigo-600">
+                <i data-lucide="info" size="16"></i> 정보/정책
+            </button>
             <button id="tab-partnership" class="flex-1 min-w-fit flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-gray-500 hover:text-indigo-600">
                 <i data-lucide="mail" size="16"></i> 제휴
             </button>
@@ -257,30 +263,90 @@
 
         <!-- Section: Partnership -->
         <div id="section-partnership" class="hidden space-y-6">
-            <div class="bg-white/50 p-6 rounded-2xl border border-gray-100">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">제휴 및 마케팅 문의</h3>
-                <form action="https://formspree.io/f/xnjwdoal" method="POST" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">성함 / 기업명</label>
-                        <input type="text" name="name" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">이메일 주소</label>
-                        <input type="email" name="email" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">문의 내용</label>
-                        <textarea name="message" rows="4" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
-                        문의 보내기
-                    </button>
-                </form>
+            <!-- Partnership content ... -->
+        </div>
+
+        <!-- Section: Guide -->
+        <div id="section-guide" class="hidden space-y-8 animate-in fade-in duration-700">
+            <div class="prose prose-indigo max-w-none">
+                <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-6">스마트 여행 가이드</h2>
+                
+                <article class="space-y-4 bg-white/40 p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h3 class="text-xl font-bold text-indigo-600 flex items-center gap-2">
+                        <i data-lucide="check-circle" size="20"></i> 세계 여행 필수 체크리스트
+                    </h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">
+                        완벽한 여행은 철저한 준비에서 시작됩니다. 여권 만료일 확인(최소 6개월 이상 권장)부터 방문 국가의 비자 요건, 그리고 여행자 보험 가입까지 필수 항목을 꼼꼼히 챙기세요. 특히 최근에는 디지털 기기 사용이 많으므로 보조 배터리와 범용 어댑터(멀티탭)는 필수 준비물입니다.
+                    </p>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
+                        <li>여권 및 비자 사본 준비 (클라우드 저장 권장)</li>
+                        <li>비상 연락망 확보 및 대사관 위치 파악</li>
+                        <li>현지 유심 또는 로밍 서비스 사전 신청</li>
+                    </ul>
+                </article>
+
+                <article class="space-y-4 bg-white/40 p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h3 class="text-xl font-bold text-indigo-600 flex items-center gap-2">
+                        <i data-lucide="cpu" size="20"></i> AI를 활용한 스마트한 일정 관리
+                    </h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">
+                        저희 '글로벌 트래블 가이드'에서 제공하는 AI 국가 인식 기술과 실시간 기상 데이터를 결합하면 더욱 효율적인 여행이 가능합니다. 이미지 검색을 통해 가고 싶은 명소를 식별하고, 해당 지역의 시간대와 날씨를 실시간으로 확인하여 최적의 방문 시간을 결정하세요. 데이터 기반의 여행은 예상치 못한 기상 악화나 혼잡도를 피하는 데 큰 도움이 됩니다.
+                    </p>
+                </article>
+
+                <article class="space-y-4 bg-white/40 p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h3 class="text-xl font-bold text-indigo-600 flex items-center gap-2">
+                        <i data-lucide="thermometer-snowflake" size="20"></i> 기후 데이터 기반 옷차림 가이드
+                    </h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">
+                        단순히 기온만 확인하는 것이 아니라 '체감 온도'와 '습도'를 함께 고려해야 합니다. 동남아시아 지역은 기온이 낮더라도 습도가 높으면 체감 온도가 급격히 올라가며, 유럽이나 북미 지역은 일교차가 크기 때문에 가벼운 겉옷을 여러 겹 겹쳐 입는 '레이어드 룩'이 가장 효율적입니다.
+                    </p>
+                </article>
             </div>
         </div>
 
-        <footer class="text-center text-xs text-gray-400 pt-4">
-            Powered by Open-Meteo & Gemini CLI
+        <!-- Section: About -->
+        <div id="section-about" class="hidden space-y-8 animate-in fade-in duration-700">
+            <div class="bg-white/50 p-6 rounded-2xl border border-gray-100">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">서비스 소개 (About Us)</h3>
+                <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                    글로벌 트래블 가이드는 여행자들에게 실시간 기상 정보, 시간대 변환, 그리고 혁신적인 AI 이미지 인식 기술을 제공하기 위해 개발되었습니다. 저희는 데이터와 인공지능이 여행의 경험을 더 풍부하고 안전하게 만들 수 있다고 믿습니다.
+                </p>
+                <p class="text-xs text-gray-400 italic">
+                    Contact: contact@travelguide.ai | Powered by Open-Meteo & TensorFlow
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-gray-800 px-2">개인정보처리방침 (Privacy Policy)</h3>
+                <div class="bg-gray-50/80 p-6 rounded-2xl text-xs text-gray-600 leading-relaxed h-48 overflow-y-auto border border-gray-100">
+                    <p class="mb-2"><strong>1. 개인정보의 수집 및 이용 목적</strong><br>본 사이트는 사용자가 업로드하는 이미지를 분석하기 위한 용도로만 일시적으로 사용하며, 서버에 영구적으로 저장하지 않습니다.</p>
+                    <p class="mb-2"><strong>2. 쿠키(Cookie)의 사용</strong><br>Google AdSense 광고 게재 및 분석을 위해 브라우저 쿠키를 사용할 수 있습니다. 사용자는 브라우저 설정에서 쿠키 거부를 설정할 수 있습니다.</p>
+                    <p class="mb-2"><strong>3. 제3자 제공</strong><br>당사는 사용자의 명시적인 동의 없이 개인정보를 제3자에게 제공하지 않습니다.</p>
+                    <p><strong>4. 문의사항</strong><br>개인정보 관련 문의는 contact@travelguide.ai로 연락주시기 바랍니다.</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-gray-800 px-2">이용약관 (Terms of Service)</h3>
+                <div class="bg-gray-50/80 p-6 rounded-2xl text-xs text-gray-600 leading-relaxed h-48 overflow-y-auto border border-gray-100">
+                    <p class="mb-2">제1조 (목적)<br>본 약관은 '글로벌 트래블 가이드'가 제공하는 서비스의 이용 조건 및 절차를 규정함을 목적으로 합니다.</p>
+                    <p class="mb-2">제2조 (서비스의 변경)<br>본 서비스는 최신 기술 반영을 위해 수시로 업데이트되거나 변경될 수 있습니다.</p>
+                    <p>제3조 (책임의 한계)<br>제공되는 기상 정보 및 AI 분석 결과는 데이터 제공처의 상황에 따라 실제와 다를 수 있으며, 이에 따른 판단의 책임은 사용자에게 있습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center pt-8 border-t border-gray-100 space-y-4">
+            <div class="flex justify-center gap-6 text-xs text-gray-500 font-medium">
+                <button onclick="switchTab('about')" class="hover:text-indigo-600 transition-colors">서비스 소개</button>
+                <button onclick="switchTab('about')" class="hover:text-indigo-600 transition-colors">개인정보처리방침</button>
+                <button onclick="switchTab('about')" class="hover:text-indigo-600 transition-colors">이용약관</button>
+            </div>
+            <p class="text-[10px] text-gray-400">
+                © 2026 Global Travel Guide. All rights reserved. <br>
+                Powered by Open-Meteo & Gemini CLI
+            </p>
         </footer>
     </div>
 

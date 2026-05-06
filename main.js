@@ -29,6 +29,8 @@ const tabs = {
     classifier: document.getElementById('tab-classifier'),
     insights: document.getElementById('tab-insights'),
     planner: document.getElementById('tab-planner'),
+    guide: document.getElementById('tab-guide'),
+    about: document.getElementById('tab-about'),
     partnership: document.getElementById('tab-partnership')
 };
 const sections = {
@@ -36,6 +38,8 @@ const sections = {
     classifier: document.getElementById('section-classifier'),
     insights: document.getElementById('section-insights'),
     planner: document.getElementById('section-planner'),
+    guide: document.getElementById('section-guide'),
+    about: document.getElementById('section-about'),
     partnership: document.getElementById('section-partnership')
 };
 
@@ -75,6 +79,8 @@ tabs.status.addEventListener('click', () => switchTab('status'));
 tabs.classifier.addEventListener('click', () => switchTab('classifier'));
 tabs.insights.addEventListener('click', () => switchTab('insights'));
 tabs.planner.addEventListener('click', () => switchTab('planner'));
+tabs.guide.addEventListener('click', () => switchTab('guide'));
+tabs.about.addEventListener('click', () => switchTab('about'));
 tabs.partnership.addEventListener('click', () => switchTab('partnership'));
 
 // Populate city dropdown
