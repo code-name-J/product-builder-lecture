@@ -27,11 +27,13 @@ const apparentTempDisplay = document.getElementById('apparent-temp');
 const tabs = {
     status: document.getElementById('tab-status'),
     insights: document.getElementById('tab-insights'),
+    planner: document.getElementById('tab-planner'),
     partnership: document.getElementById('tab-partnership')
 };
 const sections = {
     status: document.getElementById('section-status'),
     insights: document.getElementById('section-insights'),
+    planner: document.getElementById('section-planner'),
     partnership: document.getElementById('section-partnership')
 };
 
@@ -62,6 +64,7 @@ function switchTab(activeTab) {
 
 tabs.status.addEventListener('click', () => switchTab('status'));
 tabs.insights.addEventListener('click', () => switchTab('insights'));
+tabs.planner.addEventListener('click', () => switchTab('planner'));
 tabs.partnership.addEventListener('click', () => switchTab('partnership'));
 
 // Populate city dropdown
@@ -207,6 +210,115 @@ function reloadDisqus(cityName) {
         })();
     }
 }
+
+// Planner Logic
+const planStartDateInput = document.getElementById('plan-start-date');
+const planEndDateInput = document.getElementById('plan-end-date');
+const plannerDaysContainer = document.getElementById('planner-days-container');
+
+let travelPlans = JSON.parse(localStorage.getItem('travelPlans')) || {};
+
+function savePlans() {
+    localStorage.setItem('travelPlans', JSON.stringify(travelPlans));
+}
+
+function generatePlanner() {
+    const start = planStartDateInput.value;
+    const end = planEndDateInput.value;
+
+    if (!start || !end) return;
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    if (endDate < startDate) {
+        alert("종료일은 시작일보다 빠를 수 없습니다.");
+        return;
+    }
+
+    plannerDaysContainer.innerHTML = '';
+    const diffTime = Math.abs(endDate - startDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    for (let i = 0; i < diffDays; i++) {
+        const currentDay = new Date(startDate);
+        currentDay.setDate(startDate.getDate() + i);
+        const dateStr = currentDay.toISOString().split('T')[0];
+        
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'bg-white/70 p-4 rounded-xl border border-indigo-50 shadow-sm space-y-3';
+        dayDiv.innerHTML = `
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                <h4 class="font-bold text-gray-800">${i + 1}일차 (${dateStr})</h4>
+                <button onclick="addTask('${dateStr}')" class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md hover:bg-indigo-100 transition-colors flex items-center gap-1">
+                    <i data-lucide="plus" size="12"></i> 일정 추가
+                </button>
+            </div>
+            <div id="tasks-${dateStr}" class="space-y-2">
+                <!-- Tasks for this day -->
+            </div>
+        `;
+        plannerDaysContainer.appendChild(dayDiv);
+        renderTasks(dateStr);
+    }
+    lucide.createIcons();
+}
+
+function addTask(dateStr) {
+    const time = prompt("시간을 입력하세요 (예: 09:00)", "09:00");
+    if (!time) return;
+    const activity = prompt("활동 내용을 입력하세요", "아침 식사");
+    if (!activity) return;
+
+    if (!travelPlans[dateStr]) travelPlans[dateStr] = [];
+    travelPlans[dateStr].push({ time, activity, id: Date.now() });
+    travelPlans[dateStr].sort((a, b) => a.time.localeCompare(b.time));
+    
+    savePlans();
+    renderTasks(dateStr);
+}
+
+function deleteTask(dateStr, taskId) {
+    travelPlans[dateStr] = travelPlans[dateStr].filter(task => task.id !== taskId);
+    savePlans();
+    renderTasks(dateStr);
+}
+
+function renderTasks(dateStr) {
+    const container = document.getElementById(`tasks-${dateStr}`);
+    if (!container) return;
+    
+    container.innerHTML = '';
+    const tasks = travelPlans[dateStr] || [];
+    
+    if (tasks.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-2">아직 일정이 없습니다.</p>`;
+        return;
+    }
+
+    tasks.forEach(task => {
+        const taskDiv = document.createElement('div');
+        taskDiv.className = 'flex items-center justify-between gap-3 bg-white p-2 rounded-lg border border-gray-50 shadow-sm animate-in fade-in slide-in-from-left-2';
+        taskDiv.innerHTML = `
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded">${task.time}</span>
+                <span class="text-sm text-gray-700">${task.activity}</span>
+            </div>
+            <button onclick="deleteTask('${dateStr}', ${task.id})" class="text-gray-300 hover:text-red-500 transition-colors">
+                <i data-lucide="x" size="14"></i>
+            </button>
+        `;
+        container.appendChild(taskDiv);
+    });
+    lucide.createIcons();
+}
+
+// Make functions global for inline onclick
+window.addTask = addTask;
+window.deleteTask = deleteTask;
+
+planStartDateInput.addEventListener('change', generatePlanner);
+planEndDateInput.addEventListener('change', generatePlanner);
 
 kstInput.addEventListener('change', updateDisplay);
 citySelect.addEventListener('change', updateDisplay);
