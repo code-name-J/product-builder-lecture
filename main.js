@@ -215,9 +215,13 @@ function getCurrencySymbol(code) {
     return symbols[code] || "";
 }
 
+let debounceTimer;
 krwAmountInput.addEventListener('input', () => {
-    const city = cities[citySelect.value];
-    if (city) updateCurrency(city.currency);
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        const city = cities[citySelect.value];
+        if (city) updateCurrency(city.currency);
+    }, 500); // Wait for 500ms after user stops typing
 });
 
 // Checklist Logic
