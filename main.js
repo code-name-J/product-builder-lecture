@@ -23,6 +23,17 @@ const humidityDisplay = document.getElementById('humidity');
 const windspeedDisplay = document.getElementById('windspeed');
 const apparentTempDisplay = document.getElementById('apparent-temp');
 
+// Currency Converter Elements
+const krwAmountInput = document.getElementById('krw-amount');
+const targetAmountInput = document.getElementById('target-amount');
+const targetCurrencyLabel = document.getElementById('target-currency-label');
+const currencyRateInfo = document.getElementById('currency-rate-info');
+
+// Checklist Elements
+const checklistInput = document.getElementById('checklist-input');
+const addChecklistItemBtn = document.getElementById('add-checklist-item');
+const checklistContainer = document.getElementById('checklist-container');
+
 // Tab Elements
 const tabs = {
     status: document.getElementById('tab-status'),
@@ -162,9 +173,117 @@ async function updateDisplay() {
     // 3. Travel Insights Logic
     updateInsights(city, month);
 
-    // 4. Reload Disqus for specific city
+    // 4. Currency Logic
+    updateCurrency(city.currency);
+
+    // 5. Reload Disqus for specific city
     reloadDisqus(city.name);
 }
+
+// Currency Logic
+let exchangeRates = {};
+
+async function updateCurrency(targetCurrency) {
+    targetCurrencyLabel.textContent = `${targetCurrency} (${getCurrencySymbol(targetCurrency)})`;
+    
+    try {
+        // Using a free API for exchange rates
+        const res = await fetch(`https://open.er-api.com/v6/latest/KRW`);
+        const data = await res.json();
+        
+        if (data && data.rates) {
+            const rate = data.rates[targetCurrency];
+            const krw = krwAmountInput.value;
+            targetAmountInput.value = (krw * rate).toFixed(2);
+            currencyRateInfo.textContent = `1 KRW = ${rate.toFixed(4)} ${targetCurrency}`;
+        }
+    } catch (error) {
+        console.error("Currency fetch failed:", error);
+        currencyRateInfo.textContent = "환율 정보를 가져오지 못했습니다.";
+    }
+}
+
+function getCurrencySymbol(code) {
+    const symbols = { JPY: "¥", USD: "$", GBP: "£", EUR: "€", THB: "฿" };
+    return symbols[code] || "";
+}
+
+krwAmountInput.addEventListener('input', () => {
+    const city = cities[citySelect.value];
+    if (city) updateCurrency(city.currency);
+});
+
+// Checklist Logic
+let checklistItems = JSON.parse(localStorage.getItem('travelChecklist')) || [
+    { id: 1, text: "여권 및 비자", completed: false },
+    { id: 2, text: "항공권 예약 확인", completed: false },
+    { id: 3, text: "숙소 바우처", completed: false }
+];
+
+function saveChecklist() {
+    localStorage.setItem('travelChecklist', JSON.stringify(checklistItems));
+}
+
+function renderChecklist() {
+    checklistContainer.innerHTML = '';
+    checklistItems.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = `flex items-center justify-between p-3 rounded-xl border ${item.completed ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-white border-gray-100'} transition-all`;
+        itemDiv.innerHTML = `
+            <div class="flex items-center gap-3">
+                <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleChecklistItem(${item.id})" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                <span class="text-sm ${item.completed ? 'line-through text-gray-400' : 'text-gray-700'} font-medium">${item.text}</span>
+            </div>
+            <button onclick="deleteChecklistItem(${item.id})" class="text-gray-300 hover:text-red-500 transition-colors">
+                <i data-lucide="trash-2" size="14"></i>
+            </button>
+        `;
+        checklistContainer.appendChild(itemDiv);
+    });
+    lucide.createIcons();
+}
+
+function addChecklistItem() {
+    const text = checklistInput.value.trim();
+    if (!text) return;
+
+    const newItem = {
+        id: Date.now(),
+        text: text,
+        completed: false
+    };
+
+    checklistItems.push(newItem);
+    checklistInput.value = '';
+    saveChecklist();
+    renderChecklist();
+}
+
+function toggleChecklistItem(id) {
+    checklistItems = checklistItems.map(item => 
+        item.id === id ? { ...item, completed: !item.completed } : item
+    );
+    saveChecklist();
+    renderChecklist();
+}
+
+function deleteChecklistItem(id) {
+    checklistItems = checklistItems.filter(item => item.id !== id);
+    saveChecklist();
+    renderChecklist();
+}
+
+addChecklistItemBtn.addEventListener('click', addChecklistItem);
+checklistInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') addChecklistItem();
+});
+
+// Make global for onclick
+window.toggleChecklistItem = toggleChecklistItem;
+window.deleteChecklistItem = deleteChecklistItem;
+
+// Initial Checklist Render
+renderChecklist();
 
 function updateInsights(city, month) {
     // Readiness Score
