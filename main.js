@@ -184,22 +184,29 @@ async function updateDisplay() {
 let exchangeRates = {};
 
 async function updateCurrency(targetCurrency) {
+    if (!targetCurrency) return;
     targetCurrencyLabel.textContent = `${targetCurrency} (${getCurrencySymbol(targetCurrency)})`;
+    currencyRateInfo.textContent = "환율 업데이트 중...";
     
     try {
-        // Using a free API for exchange rates
-        const res = await fetch(`https://open.er-api.com/v6/latest/KRW`);
+        // Alternative reliable free API
+        const res = await fetch(`https://api.exchangerate-api.com/v4/latest/KRW`);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        
         const data = await res.json();
         
-        if (data && data.rates) {
+        if (data && data.rates && data.rates[targetCurrency]) {
             const rate = data.rates[targetCurrency];
-            const krw = krwAmountInput.value;
-            targetAmountInput.value = (krw * rate).toFixed(2);
-            currencyRateInfo.textContent = `1 KRW = ${rate.toFixed(4)} ${targetCurrency}`;
+            const krw = krwAmountInput.value || 0;
+            targetAmountInput.value = (parseFloat(krw) * rate).toFixed(2);
+            currencyRateInfo.textContent = `1 KRW = ${rate.toFixed(4)} ${targetCurrency} (업데이트: ${data.date})`;
+        } else {
+            throw new Error("해당 통화 정보를 찾을 수 없습니다.");
         }
     } catch (error) {
         console.error("Currency fetch failed:", error);
-        currencyRateInfo.textContent = "환율 정보를 가져오지 못했습니다.";
+        currencyRateInfo.textContent = "환율 정보를 가져오지 못했습니다. (네트워크 확인 필요)";
+        targetAmountInput.value = "---";
     }
 }
 
