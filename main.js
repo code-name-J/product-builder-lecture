@@ -1,9 +1,9 @@
 const cities = [
-    { name: "도쿄, 일본 (GMT+9)", tz: "Asia/Tokyo", lat: 35.6895, lon: 139.6917, bestMonths: [3, 4, 10, 11], congestion: [1.8, 1.4, 2.0, 1.9, 1.6, 1.2, 1.5, 1.7, 1.3, 1.6, 1.8, 1.5], highlights: "벚꽃과 단풍 시즌이 절정입니다." },
-    { name: "뉴욕, 미국 (GMT-5)", tz: "America/New_York", lat: 40.7128, lon: -74.0060, bestMonths: [5, 6, 9, 10], congestion: [1.2, 1.3, 1.5, 1.7, 1.8, 1.9, 2.0, 2.0, 1.8, 1.7, 1.9, 2.0], highlights: "온화한 날씨에 센트럴 파크를 즐기기 좋습니다." },
-    { name: "런던, 영국 (GMT+0)", tz: "Europe/London", lat: 51.5074, lon: -0.1278, bestMonths: [5, 6, 7, 8], congestion: [1.1, 1.2, 1.4, 1.6, 1.8, 1.9, 2.0, 2.0, 1.7, 1.5, 1.4, 1.8], highlights: "해가 길고 축제가 많은 여름 시즌입니다." },
-    { name: "파리, 프랑스 (GMT+1)", tz: "Europe/Paris", lat: 48.8566, lon: 2.3522, bestMonths: [4, 5, 6, 9], congestion: [1.2, 1.3, 1.6, 1.8, 1.9, 2.0, 1.9, 1.7, 2.0, 1.6, 1.4, 1.8], highlights: "예술과 낭만이 가득한 봄과 가을의 파리입니다." },
-    { name: "방콕, 태국 (GMT+7)", tz: "Asia/Bangkok", lat: 13.7563, lon: 100.5018, bestMonths: [11, 12, 1, 2], congestion: [1.9, 1.7, 1.5, 1.8, 1.4, 1.2, 1.3, 1.4, 1.3, 1.5, 1.8, 2.0], highlights: "건기로 여행하기 가장 쾌적한 날씨입니다." }
+    { name: "도쿄, 일본 (GMT+9)", tz: "Asia/Tokyo", lat: 35.6895, lon: 139.6917, bestMonths: [3, 4, 10, 11], congestion: [1.8, 1.4, 2.0, 1.9, 1.6, 1.2, 1.5, 1.7, 1.3, 1.6, 1.8, 1.5], highlights: "벚꽃과 단풍 시즌이 절정입니다.", currency: "JPY" },
+    { name: "뉴욕, 미국 (GMT-5)", tz: "America/New_York", lat: 40.7128, lon: -74.0060, bestMonths: [5, 6, 9, 10], congestion: [1.2, 1.3, 1.5, 1.7, 1.8, 1.9, 2.0, 2.0, 1.8, 1.7, 1.9, 2.0], highlights: "온화한 날씨에 센트럴 파크를 즐기기 좋습니다.", currency: "USD" },
+    { name: "런던, 영국 (GMT+0)", tz: "Europe/London", lat: 51.5074, lon: -0.1278, bestMonths: [5, 6, 7, 8], congestion: [1.1, 1.2, 1.4, 1.6, 1.8, 1.9, 2.0, 2.0, 1.7, 1.5, 1.4, 1.8], highlights: "해가 길고 축제가 많은 여름 시즌입니다.", currency: "GBP" },
+    { name: "파리, 프랑스 (GMT+1)", tz: "Europe/Paris", lat: 48.8566, lon: 2.3522, bestMonths: [4, 5, 6, 9], congestion: [1.2, 1.3, 1.6, 1.8, 1.9, 2.0, 1.9, 1.7, 2.0, 1.6, 1.4, 1.8], highlights: "예술과 낭만이 가득한 봄과 가을의 파리입니다.", currency: "EUR" },
+    { name: "방콕, 태국 (GMT+7)", tz: "Asia/Bangkok", lat: 13.7563, lon: 100.5018, bestMonths: [11, 12, 1, 2], congestion: [1.9, 1.7, 1.5, 1.8, 1.4, 1.2, 1.3, 1.4, 1.3, 1.5, 1.8, 2.0], highlights: "건기로 여행하기 가장 쾌적한 날씨입니다.", currency: "THB" }
 ];
 
 // Elements
