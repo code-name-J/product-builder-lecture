@@ -184,7 +184,6 @@ async function updateDisplay() {
 let exchangeRates = {};
 
 async function updateCurrency(targetCurrency) {
-    console.log("updateCurrency triggered for:", targetCurrency);
     if (!targetCurrency) return;
     
     targetCurrencyLabel.textContent = `${targetCurrency} (${getCurrencySymbol(targetCurrency)})`;
@@ -192,17 +191,14 @@ async function updateCurrency(targetCurrency) {
     
     try {
         const res = await fetch(`https://api.exchangerate-api.com/v4/latest/KRW`);
-        console.log("API response status:", res.status);
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         
         const data = await res.json();
-        console.log("API data received:", data.date);
         
         if (data && data.rates && data.rates[targetCurrency]) {
             const rate = data.rates[targetCurrency];
             const krw = krwAmountInput.value || 0;
             const result = (parseFloat(krw) * rate).toFixed(2);
-            console.log(`Calculation: ${krw} * ${rate} = ${result}`);
             targetAmountInput.value = result;
             currencyRateInfo.textContent = `1 KRW = ${rate.toFixed(4)} ${targetCurrency} (${data.date})`;
         } else {
@@ -222,12 +218,13 @@ function getCurrencySymbol(code) {
 
 let debounceTimer;
 krwAmountInput.addEventListener('input', () => {
-    console.log("Input event detected");
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
-        const city = cities[citySelect.value];
-        console.log("Debounce finished, selected city:", city ? city.name : "none");
-        if (city) updateCurrency(city.currency);
+        const cityIndex = citySelect.value;
+        const city = cities[cityIndex];
+        if (city && city.currency) {
+            updateCurrency(city.currency);
+        }
     }, 500);
 });
 
