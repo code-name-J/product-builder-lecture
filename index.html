@@ -94,16 +94,19 @@
                         <i data-lucide="banknote" size="16" class="text-indigo-500"></i>
                         <h3 class="text-sm font-bold text-gray-700">실시간 환율 계산기</h3>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase">KRW (원)</label>
-                            <input type="number" id="krw-amount" value="10000" class="w-full bg-white px-3 py-2 rounded-lg border border-gray-200 text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">KRW (원) 입력</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="krw-amount" value="5000" class="flex-1 bg-white px-3 py-2 rounded-lg border border-gray-200 text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <button id="convert-btn" class="bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-indigo-700 transition-colors shrink-0">환율 계산</button>
+                            </div>
                         </div>
                         <div class="space-y-1">
                             <label id="target-currency-label" class="text-[10px] font-bold text-gray-400 uppercase">---</label>
-                            <div class="relative">
-                                <input type="number" id="target-amount" class="w-full bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 text-sm font-bold outline-none" readonly>
-                                <span id="currency-rate-info" class="absolute -bottom-4 right-0 text-[9px] text-gray-400">환율 정보 불러오는 중...</span>
+                            <div class="relative bg-indigo-50 px-3 py-2 rounded-lg border border-indigo-100 min-h-[38px] flex items-center">
+                                <span id="target-amount-display" class="text-sm font-black text-indigo-700">금액을 입력하세요</span>
+                                <span id="currency-rate-info" class="absolute -bottom-4 right-0 text-[9px] text-gray-400">버튼을 눌러 확인하세요</span>
                             </div>
                         </div>
                     </div>
