@@ -1,4 +1,77 @@
 let currentCity = null;
+let currentLang = localStorage.getItem('lang') || 'ko';
+
+function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('lang', lang);
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            el.innerHTML = translations[lang][key];
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[lang] && translations[lang][key]) {
+            el.placeholder = translations[lang][key];
+        }
+    });
+
+    // Update dynamic elements
+    const setNowBtn = document.getElementById('set-now');
+    if (setNowBtn) setNowBtn.textContent = translations[lang]['btn-now'];
+
+    const targetLocalSpan = document.querySelector('#section-status .bg-indigo-600 span');
+    if (targetLocalSpan) targetLocalSpan.textContent = translations[lang]['label-local'];
+
+    // Update city search placeholder
+    const citySearchInput = document.getElementById('city-search');
+    if (citySearchInput) citySearchInput.placeholder = translations[lang]['placeholder-city-search'];
+
+    populateCities(citySearchInput ? citySearchInput.value : '');
+    updateDisplay();
+}
+
+const cities = [
+    { 
+        names: { ko: "도쿄, 일본 (GMT+9)", en: "Tokyo, Japan (GMT+9)", ja: "東京, 日本 (GMT+9)", zh: "东京, 日本 (GMT+9)" }, 
+        tz: "Asia/Tokyo", lat: 35.6895, lon: 139.6917, bestMonths: [3, 4, 10, 11], 
+        congestion: [1.8, 1.4, 2.0, 1.9, 1.6, 1.2, 1.5, 1.7, 1.3, 1.6, 1.8, 1.5], 
+        highlights: { ko: "벚꽃과 단풍 시즌이 절정입니다.", en: "Cherry blossoms and autumn foliage are at their peak.", ja: "桜と紅葉のシーズンが絶頂です。", zh: "樱花和红叶季节是巅峰期。" }, 
+        currency: "JPY" 
+    },
+    { 
+        names: { ko: "뉴욕, 미국 (GMT-5)", en: "New York, USA (GMT-5)", ja: "ニューヨーク, アメリカ (GMT-5)", zh: "纽约, 美国 (GMT-5)" }, 
+        tz: "America/New_York", lat: 40.7128, lon: -74.0060, bestMonths: [5, 6, 9, 10], 
+        congestion: [1.2, 1.3, 1.5, 1.7, 1.8, 1.9, 2.0, 2.0, 1.8, 1.7, 1.9, 2.0], 
+        highlights: { ko: "온화한 날씨에 센트럴 파크를 즐기기 좋습니다.", en: "Perfect weather to enjoy Central Park.", ja: "穏やかな天候でセントラルパークを楽しむのに最適です。", zh: "温和的天气，适合享受中央公园。" }, 
+        currency: "USD" 
+    },
+    { 
+        names: { ko: "런던, 영국 (GMT+0)", en: "London, UK (GMT+0)", ja: "ロンドン, イギリス (GMT+0)", zh: "伦敦, 英国 (GMT+0)" }, 
+        tz: "Europe/London", lat: 51.5074, lon: -0.1278, bestMonths: [5, 6, 7, 8], 
+        congestion: [1.1, 1.2, 1.4, 1.6, 1.8, 1.9, 2.0, 2.0, 1.7, 1.5, 1.4, 1.8], 
+        highlights: { ko: "해가 길고 축제가 많은 여름 시즌입니다.", en: "Summer season with long days and many festivals.", ja: "日が長く、お祭りが多い夏シーズンです。", zh: "白天漫长且节日众多的夏季。" }, 
+        currency: "GBP" 
+    },
+    { 
+        names: { ko: "파리, 프랑스 (GMT+1)", en: "Paris, France (GMT+1)", ja: "パリ, フランス (GMT+1)", zh: "巴黎, 法国 (GMT+1)" }, 
+        tz: "Europe/Paris", lat: 48.8566, lon: 2.3522, bestMonths: [4, 5, 6, 9], 
+        congestion: [1.2, 1.3, 1.6, 1.8, 1.9, 2.0, 1.9, 1.7, 2.0, 1.6, 1.4, 1.8], 
+        highlights: { ko: "예술과 낭만이 가득한 봄과 가을의 파리입니다.", en: "Paris in spring and autumn, full of art and romance.", ja: "芸術とロマンにあふれる春と秋のパリです。", zh: "充满艺术与浪漫的春秋季节的巴黎。" }, 
+        currency: "EUR" 
+    },
+    { 
+        names: { ko: "방콕, 태국 (GMT+7)", en: "Bangkok, Thailand (GMT+7)", ja: "バンコク, タイ (GMT+7)", zh: "曼谷, 泰国 (GMT+7)" }, 
+        tz: "Asia/Bangkok", lat: 13.7563, lon: 100.5018, bestMonths: [11, 12, 1, 2], 
+        congestion: [1.9, 1.7, 1.5, 1.8, 1.4, 1.2, 1.3, 1.4, 1.3, 1.5, 1.8, 2.0], 
+        highlights: { ko: "건기로 여행하기 가장 쾌적한 날씨입니다.", en: "The most pleasant weather for traveling during the dry season.", ja: "乾季で旅行に最も快適な天候です。", zh: "旱季，是旅行最舒适的天气。" }, 
+        currency: "THB" 
+    }
+];
 
 // Theme Logic
 function initTheme() {
@@ -18,6 +91,14 @@ function initTheme() {
 
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
+    setLanguage(currentLang);
+
+    const langSelect = document.getElementById('lang-select');
+    if (langSelect) {
+        langSelect.value = currentLang;
+        langSelect.addEventListener('change', (e) => setLanguage(e.target.value));
+    }
+
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
@@ -29,18 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 lucide.createIcons();
             }
             // Reset Disqus to match the new theme
-            if (currentCity) reloadDisqus(currentCity.name);
+            if (currentCity) reloadDisqus(currentCity.names[currentLang]);
         });
     }
 });
-
-const cities = [
-    { name: "도쿄, 일본 (GMT+9)", tz: "Asia/Tokyo", lat: 35.6895, lon: 139.6917, bestMonths: [3, 4, 10, 11], congestion: [1.8, 1.4, 2.0, 1.9, 1.6, 1.2, 1.5, 1.7, 1.3, 1.6, 1.8, 1.5], highlights: "벚꽃과 단풍 시즌이 절정입니다.", currency: "JPY" },
-    { name: "뉴욕, 미국 (GMT-5)", tz: "America/New_York", lat: 40.7128, lon: -74.0060, bestMonths: [5, 6, 9, 10], congestion: [1.2, 1.3, 1.5, 1.7, 1.8, 1.9, 2.0, 2.0, 1.8, 1.7, 1.9, 2.0], highlights: "온화한 날씨에 센트럴 파크를 즐기기 좋습니다.", currency: "USD" },
-    { name: "런던, 영국 (GMT+0)", tz: "Europe/London", lat: 51.5074, lon: -0.1278, bestMonths: [5, 6, 7, 8], congestion: [1.1, 1.2, 1.4, 1.6, 1.8, 1.9, 2.0, 2.0, 1.7, 1.5, 1.4, 1.8], highlights: "해가 길고 축제가 많은 여름 시즌입니다.", currency: "GBP" },
-    { name: "파리, 프랑스 (GMT+1)", tz: "Europe/Paris", lat: 48.8566, lon: 2.3522, bestMonths: [4, 5, 6, 9], congestion: [1.2, 1.3, 1.6, 1.8, 1.9, 2.0, 1.9, 1.7, 2.0, 1.6, 1.4, 1.8], highlights: "예술과 낭만이 가득한 봄과 가을의 파리입니다.", currency: "EUR" },
-    { name: "방콕, 태국 (GMT+7)", tz: "Asia/Bangkok", lat: 13.7563, lon: 100.5018, bestMonths: [11, 12, 1, 2], congestion: [1.9, 1.7, 1.5, 1.8, 1.4, 1.2, 1.3, 1.4, 1.3, 1.5, 1.8, 2.0], highlights: "건기로 여행하기 가장 쾌적한 날씨입니다.", currency: "THB" }
-];
 
 // Elements
 const kstInput = document.getElementById('kst-input');
@@ -133,12 +206,12 @@ tabs.partnership.addEventListener('click', () => switchTab('partnership'));
 // Populate city dropdown
 function populateCities(filter = '') {
     citySelect.innerHTML = '';
-    const filtered = cities.filter(c => c.name.includes(filter));
+    const filtered = cities.filter(c => c.names[currentLang].includes(filter));
     filtered.forEach((city) => {
         const originalIndex = cities.indexOf(city);
         const option = document.createElement('option');
         option.value = originalIndex;
-        option.textContent = city.name;
+        option.textContent = city.names[currentLang];
         citySelect.appendChild(option);
     });
     if (filtered.length > 0) updateDisplay();
@@ -176,8 +249,8 @@ async function updateDisplay() {
     if (!city || !inputVal) return;
 
     resultContainer.classList.remove('hidden');
-    targetCityLabel.textContent = city.name.split(',')[0];
-    displayCityName.textContent = city.name;
+    targetCityLabel.textContent = city.names[currentLang].split(',')[0];
+    displayCityName.textContent = city.names[currentLang];
 
     const date = new Date(inputVal);
     const month = date.getMonth() + 1; // 1-12
@@ -185,8 +258,12 @@ async function updateDisplay() {
     // 1. Time Conversion
     const timeOptions = { timeZone: city.tz, hour: '2-digit', minute: '2-digit', hour12: true };
     const dateOptions = { timeZone: city.tz, month: 'long', day: 'numeric', weekday: 'short' };
-    localTimeDisplay.textContent = new Intl.DateTimeFormat('ko-KR', timeOptions).format(date);
-    localDateDisplay.textContent = new Intl.DateTimeFormat('ko-KR', dateOptions).format(date);
+    
+    const localeMap = { 'ko': 'ko-KR', 'en': 'en-US', 'ja': 'ja-JP', 'zh': 'zh-CN' };
+    const currentLocale = localeMap[currentLang] || 'en-US';
+
+    localTimeDisplay.textContent = new Intl.DateTimeFormat(currentLocale, timeOptions).format(date);
+    localDateDisplay.textContent = new Intl.DateTimeFormat(currentLocale, dateOptions).format(date);
 
     // 2. Weather Fetch
     try {
@@ -198,8 +275,22 @@ async function updateDisplay() {
         humidityDisplay.textContent = `${data.hourly.relative_humidity_2m[0]}%`;
         apparentTempDisplay.textContent = `${Math.round(data.hourly.apparent_temperature[0])}°C`;
         
-        const weatherCodes = { 0: "맑음", 1: "대체로 맑음", 2: "흐림", 3: "매우 흐림", 45: "안개", 48: "서리 안개", 51: "가랑비", 61: "비", 71: "눈", 80: "소나기", 95: "뇌우" };
-        weatherDesc.textContent = weatherCodes[current.weathercode] || "정보 없음";
+        const weatherCodes = { 
+            0: { ko: "맑음", en: "Clear", ja: "快晴", zh: "晴朗" },
+            1: { ko: "대체로 맑음", en: "Mainly Clear", ja: "晴れ", zh: "大部晴朗" },
+            2: { ko: "흐림", en: "Partly Cloudy", ja: "曇り", zh: "多云" },
+            3: { ko: "매우 흐림", en: "Overcast", ja: "本曇り", zh: "阴天" },
+            45: { ko: "안개", en: "Fog", ja: "霧", zh: "有雾" },
+            48: { ko: "서리 안개", en: "Depositing Rime Fog", ja: "着氷性の霧", zh: "雾凇" },
+            51: { ko: "가랑비", en: "Light Drizzle", ja: "霧雨", zh: "毛毛雨" },
+            61: { ko: "비", en: "Rain", ja: "雨", zh: "有雨" },
+            71: { ko: "눈", en: "Snow", ja: "雪", zh: "有雪" },
+            80: { ko: "소나기", en: "Rain Showers", ja: "にわか雨", zh: "阵雨" },
+            95: { ko: "뇌우", en: "Thunderstorm", ja: "雷雨", zh: "雷阵雨" }
+        };
+        
+        const weatherInfo = weatherCodes[current.weathercode] || { ko: "정보 없음", en: "No Info", ja: "情報なし", zh: "无信息" };
+        weatherDesc.textContent = weatherInfo[currentLang];
         
         weatherIconContainer.innerHTML = `<i data-lucide="${getWeatherIcon(current.weathercode)}" size="48"></i>`;
         lucide.createIcons();
@@ -214,7 +305,7 @@ async function updateDisplay() {
     updateCurrency(city.currency);
 
     // 5. Reload Disqus for specific city
-    reloadDisqus(city.name);
+    reloadDisqus(city.names[currentLang]);
 }
 
 // Currency Logic
@@ -224,7 +315,7 @@ async function updateCurrency(targetCurrency) {
     if (!targetCurrency) return;
     
     targetCurrencyLabel.textContent = `${targetCurrency} (${getCurrencySymbol(targetCurrency)})`;
-    currencyRateInfo.textContent = "환율 업데이트 중...";
+    currencyRateInfo.textContent = translations[currentLang]['currency-updating'];
     
     try {
         const res = await fetch(`https://api.exchangerate-api.com/v4/latest/KRW`);
@@ -246,11 +337,11 @@ async function updateCurrency(targetCurrency) {
             targetAmountInput.value = result;
             currencyRateInfo.textContent = `1 KRW = ${rate.toFixed(4)} ${targetCurrency} (${data.date})`;
         } else {
-            throw new Error("해당 통화 정보를 찾을 수 없습니다.");
+            throw new Error("Currency info not found.");
         }
     } catch (error) {
         console.error("Currency fetch failed:", error);
-        currencyRateInfo.textContent = "환율 정보를 가져오지 못했습니다.";
+        currencyRateInfo.textContent = translations[currentLang]['currency-failed'];
         targetAmountInput.value = "0.00";
     }
 }
@@ -274,9 +365,9 @@ krwAmountInput.addEventListener('input', () => {
 
 // Checklist Logic
 let checklistItems = JSON.parse(localStorage.getItem('travelChecklist')) || [
-    { id: 1, text: "여권 및 비자", completed: false },
-    { id: 2, text: "항공권 예약 확인", completed: false },
-    { id: 3, text: "숙소 바우처", completed: false }
+    { id: 1, text: translations[currentLang]['checklist-default-1'], completed: false },
+    { id: 2, text: translations[currentLang]['checklist-default-2'], completed: false },
+    { id: 3, text: translations[currentLang]['checklist-default-3'], completed: false }
 ];
 
 function saveChecklist() {
@@ -350,12 +441,16 @@ function updateInsights(city, month) {
     let score = isBestMonth ? 90 + Math.floor(Math.random() * 10) : 40 + Math.floor(Math.random() * 30);
     
     readinessScore.textContent = `${score}%`;
-    readinessLabel.textContent = score >= 80 ? "매우 추천" : (score >= 60 ? "추천" : "보통");
+    
+    let labelKey = score >= 80 ? "status-very-recommend" : (score >= 60 ? "status-recommend" : "status-normal");
+    readinessLabel.textContent = translations[currentLang][labelKey];
     readinessLabel.className = `text-sm font-bold mb-2 ${score >= 80 ? 'text-green-600' : (score >= 60 ? 'text-amber-600' : 'text-gray-600')}`;
     
-    timingDesc.innerHTML = isBestMonth 
-        ? `지금이 여행 최적기입니다! <strong>${city.highlights}</strong>`
-        : `여행하기에 나쁘지 않지만, 최고의 시기는 아닙니다. ${city.bestMonths.join(', ')}월을 추천드려요.`;
+    if (isBestMonth) {
+        timingDesc.innerHTML = translations[currentLang]['insight-best'].replace('{highlights}', city.highlights[currentLang]);
+    } else {
+        timingDesc.innerHTML = translations[currentLang]['insight-not-best'].replace('{months}', city.bestMonths.join(', '));
+    }
 
     // Congestion Logic
     const congestionVal = city.congestion[month - 1]; // 1.0 to 2.0
@@ -363,15 +458,15 @@ function updateInsights(city, month) {
     
     congestionBar.style.width = `${percent}%`;
     if (percent < 30) {
-        congestionLevel.textContent = "쾌적";
+        congestionLevel.textContent = translations[currentLang]['congestion-low'];
         congestionLevel.className = "text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-600";
         congestionBar.className = "h-full bg-green-500 transition-all duration-1000";
     } else if (percent < 70) {
-        congestionLevel.textContent = "보통";
+        congestionLevel.textContent = translations[currentLang]['congestion-medium'];
         congestionLevel.className = "text-xs font-bold px-2 py-1 rounded bg-amber-100 text-amber-600";
         congestionBar.className = "h-full bg-amber-500 transition-all duration-1000";
     } else {
-        congestionLevel.textContent = "매우 혼잡";
+        congestionLevel.textContent = translations[currentLang]['congestion-high'];
         congestionLevel.className = "text-xs font-bold px-2 py-1 rounded bg-red-100 text-red-600";
         congestionBar.className = "h-full bg-red-500 transition-all duration-1000";
     }
@@ -426,7 +521,7 @@ function generatePlanner() {
     const endDate = new Date(end);
 
     if (endDate < startDate) {
-        alert("종료일은 시작일보다 빠를 수 없습니다.");
+        alert(translations[currentLang]['planner-alert-date']);
         return;
     }
 
@@ -443,9 +538,9 @@ function generatePlanner() {
         dayDiv.className = 'bg-white/70 p-4 rounded-xl border border-indigo-50 shadow-sm space-y-3';
         dayDiv.innerHTML = `
             <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                <h4 class="font-bold text-gray-800">${i + 1}일차 (${dateStr})</h4>
+                <h4 class="font-bold text-gray-800">${i + 1}${translations[currentLang]['planner-day']} (${dateStr})</h4>
                 <button onclick="addTask('${dateStr}')" class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md hover:bg-indigo-100 transition-colors flex items-center gap-1">
-                    <i data-lucide="plus" size="12"></i> 일정 추가
+                    <i data-lucide="plus" size="12"></i> ${translations[currentLang]['planner-add-task']}
                 </button>
             </div>
             <div id="tasks-${dateStr}" class="space-y-2">
@@ -459,9 +554,9 @@ function generatePlanner() {
 }
 
 function addTask(dateStr) {
-    const time = prompt("시간을 입력하세요 (예: 09:00)", "09:00");
+    const time = prompt(translations[currentLang]['planner-prompt-time'], "09:00");
     if (!time) return;
-    const activity = prompt("활동 내용을 입력하세요", "아침 식사");
+    const activity = prompt(translations[currentLang]['planner-prompt-activity'], "");
     if (!activity) return;
 
     if (!travelPlans[dateStr]) travelPlans[dateStr] = [];
@@ -486,7 +581,7 @@ function renderTasks(dateStr) {
     const tasks = travelPlans[dateStr] || [];
     
     if (tasks.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-2">아직 일정이 없습니다.</p>`;
+        container.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-2">${translations[currentLang]['planner-no-tasks']}</p>`;
         return;
     }
 
@@ -539,11 +634,11 @@ async function initClassifier() {
         model = await tmImage.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
         
-        modelStatus.innerHTML = `<div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>모델 준비됨`;
+        modelStatus.innerHTML = `<div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>${translations[currentLang]['classifier-ready']}`;
         modelStatus.className = "flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded";
     } catch (error) {
         console.error("Model load failed:", error);
-        modelStatus.innerHTML = `<div class="w-1.5 h-1.5 bg-red-500 rounded-full"></div>로딩 실패`;
+        modelStatus.innerHTML = `<div class="w-1.5 h-1.5 bg-red-500 rounded-full"></div>${translations[currentLang]['classifier-failed']}`;
         modelStatus.className = "flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded";
     } finally {
         isModelLoading = false;
@@ -635,7 +730,7 @@ webcamBtn.addEventListener('click', async () => {
         webcam.canvas.className = "w-full h-full object-cover";
         
         isWebcamRunning = true;
-        webcamBtn.innerHTML = `<i data-lucide="stop-circle" size="16"></i> 웹캠 중지하기`;
+        webcamBtn.innerHTML = `<i data-lucide="stop-circle" size="16"></i> ${translations[currentLang]['webcam-stop']}`;
         webcamBtn.classList.replace('text-indigo-600', 'text-red-600');
         webcamBtn.classList.replace('bg-indigo-50', 'bg-red-50');
         lucide.createIcons();
@@ -644,7 +739,7 @@ webcamBtn.addEventListener('click', async () => {
         window.requestAnimationFrame(webcamLoop);
     } catch (error) {
         console.error("Webcam setup failed:", error);
-        alert("웹캠을 시작할 수 없습니다. 권한을 확인해주세요.");
+        alert(translations[currentLang]['webcam-error']);
         loadingSpinner.classList.add('hidden');
     }
 });
@@ -655,7 +750,7 @@ function stopWebcam() {
         webcam = null;
     }
     isWebcamRunning = false;
-    webcamBtn.innerHTML = `<i data-lucide="webcam" size="16"></i> 실시간 웹캠 사용하기`;
+    webcamBtn.innerHTML = `<i data-lucide="webcam" size="16"></i> ${translations[currentLang]['btn-webcam']}`;
     webcamBtn.classList.replace('text-red-600', 'text-indigo-600');
     webcamBtn.classList.replace('bg-red-50', 'bg-indigo-50');
     lucide.createIcons();
@@ -672,19 +767,30 @@ async function webcamLoop() {
 function updatePredictionUI(predictions) {
     const topPrediction = predictions.reduce((prev, current) => (prev.probability > current.probability) ? prev : current);
     
-    document.getElementById('top-prediction').textContent = topPrediction.className;
-    document.getElementById('confidence-badge').textContent = `확신도 ${Math.round(topPrediction.probability * 100)}%`;
+    const classMap = {
+        "일본": { ko: "일본", en: "Japan", ja: "日本", zh: "日本" },
+        "미국": { ko: "미국", en: "USA", ja: "アメリカ", zh: "美国" },
+        "영국": { ko: "영국", en: "UK", ja: "イギリス", zh: "英国" },
+        "프랑스": { ko: "프랑스", en: "France", ja: "フランス", zh: "法国" },
+        "태국": { ko: "태국", en: "Thailand", ja: "タイ", zh: "泰国" }
+    };
+
+    const localizedClassName = classMap[topPrediction.className] ? classMap[topPrediction.className][currentLang] : topPrediction.className;
+
+    document.getElementById('top-prediction').textContent = localizedClassName;
+    document.getElementById('confidence-badge').textContent = `${translations[currentLang]['confidence']} ${Math.round(topPrediction.probability * 100)}%`;
     
     const labelContainer = document.getElementById('label-container');
     labelContainer.innerHTML = '';
     
     predictions.forEach(p => {
         const percentage = Math.round(p.probability * 100);
+        const localizedName = classMap[p.className] ? classMap[p.className][currentLang] : p.className;
         const barDiv = document.createElement('div');
         barDiv.className = 'space-y-1';
         barDiv.innerHTML = `
             <div class="flex justify-between text-[10px] font-bold text-indigo-100 uppercase">
-                <span>${p.className}</span>
+                <span>${localizedName}</span>
                 <span>${percentage}%</span>
             </div>
             <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
@@ -694,13 +800,12 @@ function updatePredictionUI(predictions) {
         labelContainer.appendChild(barDiv);
     });
 
-    // Provide description based on country
     const descriptions = {
-        "일본": "전통과 현대가 공존하는 섬나라, 일본입니다.",
-        "미국": "다양한 문화의 중심지, 미국입니다.",
-        "영국": "전통과 역사가 깊은 신사의 나라, 영국입니다.",
-        "프랑스": "예술과 낭만의 도시가 가득한 프랑스입니다.",
-        "태국": "미소와 열정의 나라, 태국입니다."
+        "일본": translations[currentLang]['prediction-japan'],
+        "미국": translations[currentLang]['prediction-usa'],
+        "영국": translations[currentLang]['prediction-uk'],
+        "프랑스": translations[currentLang]['prediction-france'],
+        "태국": translations[currentLang]['prediction-thailand']
     };
-    document.getElementById('prediction-desc').textContent = descriptions[topPrediction.className] || "이미지를 분석하여 국가를 식별했습니다.";
+    document.getElementById('prediction-desc').textContent = descriptions[topPrediction.className] || translations[currentLang]['prediction-default'];
 }
