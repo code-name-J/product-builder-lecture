@@ -16,7 +16,12 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-xl rounded-2xl p-8 space-y-6">
-        <header class="text-center">
+        <header class="text-center relative">
+            <div class="absolute right-0 top-0">
+                <button id="theme-toggle" class="p-2 rounded-xl bg-gray-100/50 hover:bg-gray-200/50 text-gray-600 dark:text-gray-400 transition-all">
+                    <i id="theme-icon" data-lucide="moon" size="20"></i>
+                </button>
+            </div>
             <h1 class="text-3xl font-bold text-gray-800 mb-2">글로벌 트래블 가이드</h1>
             <p class="text-gray-500">날씨, 일정, 그리고 AI 국가 인식까지</p>
         </header>
@@ -48,7 +53,6 @@
 
         <!-- Section: Status (Time & Weather) -->
         <div id="section-status" class="space-y-6">
-            <!-- ... existing content ... -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Korean Time (Source) -->
                 <div class="bg-white/50 p-4 rounded-xl border border-gray-100 shadow-sm">

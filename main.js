@@ -1,3 +1,33 @@
+// Theme Logic
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const themeIcon = document.getElementById('theme-icon');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.body.classList.add('dark');
+        if (themeIcon) themeIcon.setAttribute('data-lucide', 'sun');
+    } else {
+        document.body.classList.remove('dark');
+        if (themeIcon) themeIcon.setAttribute('data-lucide', 'moon');
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            const themeIcon = document.getElementById('theme-icon');
+            if (themeIcon) {
+                themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+                lucide.createIcons();
+            }
+        });
+    }
+});
+
 const cities = [
     { name: "도쿄, 일본 (GMT+9)", tz: "Asia/Tokyo", lat: 35.6895, lon: 139.6917, bestMonths: [3, 4, 10, 11], congestion: [1.8, 1.4, 2.0, 1.9, 1.6, 1.2, 1.5, 1.7, 1.3, 1.6, 1.8, 1.5], highlights: "벚꽃과 단풍 시즌이 절정입니다.", currency: "JPY" },
     { name: "뉴욕, 미국 (GMT-5)", tz: "America/New_York", lat: 40.7128, lon: -74.0060, bestMonths: [5, 6, 9, 10], congestion: [1.2, 1.3, 1.5, 1.7, 1.8, 1.9, 2.0, 2.0, 1.8, 1.7, 1.9, 2.0], highlights: "온화한 날씨에 센트럴 파크를 즐기기 좋습니다.", currency: "USD" },
@@ -197,8 +227,15 @@ async function updateCurrency(targetCurrency) {
         
         if (data && data.rates && data.rates[targetCurrency]) {
             const rate = data.rates[targetCurrency];
-            const krw = krwAmountInput.value || 0;
-            const result = (parseFloat(krw) * rate).toFixed(2);
+            const krw = parseFloat(krwAmountInput.value);
+            
+            if (isNaN(krw)) {
+                targetAmountInput.value = "0.00";
+                currencyRateInfo.textContent = `1 KRW = ${rate.toFixed(4)} ${targetCurrency} (${data.date})`;
+                return;
+            }
+
+            const result = (krw * rate).toFixed(2);
             targetAmountInput.value = result;
             currencyRateInfo.textContent = `1 KRW = ${rate.toFixed(4)} ${targetCurrency} (${data.date})`;
         } else {

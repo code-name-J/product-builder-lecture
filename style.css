@@ -1,20 +1,77 @@
+:root {
+    --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --border-color: rgba(255, 255, 255, 0.2);
+    --shadow-color: rgba(31, 38, 135, 0.37);
+    --input-bg: #ffffff;
+    --tab-bg: rgba(243, 244, 246, 0.5);
+    --section-bg: rgba(255, 255, 255, 0.5);
+    --inner-card-bg: rgba(255, 255, 255, 0.5);
+}
+
+.dark {
+    --bg-gradient: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    --card-bg: rgba(31, 41, 55, 0.9);
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --border-color: rgba(75, 85, 99, 0.3);
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --input-bg: #374151;
+    --tab-bg: rgba(55, 65, 81, 0.5);
+    --section-bg: rgba(31, 41, 55, 0.5);
+    --inner-card-bg: rgba(55, 65, 81, 0.4);
+}
+
 body {
     font-family: 'Pretendard', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    transition: background 0.3s ease, color 0.3s ease;
 }
+
 .glass-card {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--card-bg);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+    transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
 }
+
+/* Dark mode text overrides */
+.dark h1, .dark h2, .dark h3, .dark h4 { color: #ffffff !important; }
+.dark p, .dark label { color: var(--text-muted) !important; }
+.dark .text-gray-800 { color: #f3f4f6 !important; }
+.dark .text-gray-700 { color: #e5e7eb !important; }
+.dark .text-gray-600 { color: #d1d5db !important; }
+.dark .text-gray-500 { color: #9ca3af !important; }
+.dark .text-gray-400 { color: #6b7280 !important; }
+
+.dark .bg-white { background-color: #1f2937 !important; }
+.dark .bg-white\/50 { background-color: rgba(31, 41, 55, 0.5) !important; }
+.dark .bg-white\/40 { background-color: rgba(31, 41, 55, 0.4) !important; }
+.dark .bg-white\/30 { background-color: rgba(31, 41, 55, 0.3) !important; }
+.dark .bg-gray-100\/50 { background-color: rgba(55, 65, 81, 0.5) !important; }
+.dark .bg-gray-50 { background-color: #374151 !important; }
+.dark .bg-gray-50\/80 { background-color: rgba(55, 65, 81, 0.8) !important; }
+
+.dark .border-gray-100, .dark .border-gray-200 { border-color: rgba(75, 85, 99, 0.4) !important; }
+
+.dark input, .dark select, .dark textarea {
+    background-color: var(--input-bg) !important;
+    color: #ffffff !important;
+    border-color: rgba(75, 85, 99, 0.6) !important;
+}
+
+.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important; }
 
 /* Tab Transitions */
 #section-status, #section-insights, #section-partnership, #section-classifier, #section-planner, #section-guide, #section-about {
     animation: fadeIn 0.4s ease-out;
 }
 
-/* Custom Scrollbar for Policy Sections */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
 }
@@ -25,8 +82,14 @@ body {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+}
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 0, 0, 0.2);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 @keyframes fadeIn {
@@ -37,6 +100,9 @@ body {
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
     filter: invert(0.5);
+}
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
 }
 
 textarea:focus, input:focus {
