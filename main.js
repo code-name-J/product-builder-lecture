@@ -1,8 +1,12 @@
+let currentCity = null;
+
 // Theme Logic
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const themeIcon = document.getElementById('theme-icon');
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    if (isDark) {
         document.body.classList.add('dark');
         if (themeIcon) themeIcon.setAttribute('data-lucide', 'sun');
     } else {
@@ -24,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
                 lucide.createIcons();
             }
+            // Reset Disqus to match the new theme
+            if (currentCity) reloadDisqus(currentCity.name);
         });
     }
 });
@@ -164,6 +170,7 @@ function getWeatherIcon(code) {
 async function updateDisplay() {
     const cityIndex = citySelect.value;
     const city = cities[cityIndex];
+    currentCity = city;
     const inputVal = kstInput.value;
     
     if (!city || !inputVal) return;

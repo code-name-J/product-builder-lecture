@@ -153,3 +153,18 @@ textarea:focus, input:focus {
 .dark .bg-amber-100 { background-color: #78350f !important; }
 .dark .bg-indigo-100 { background-color: rgba(67, 56, 202, 0.3) !important; }
 .dark .text-indigo-600 { color: #818cf8 !important; }
+
+/* Disqus Visibility Fix */
+#disqus_thread {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    margin-top: 1rem;
+    min-height: 300px;
+    color-scheme: light;
+}
+
+.dark #disqus_thread {
+    background-color: rgba(31, 41, 55, 0.5);
+    color-scheme: dark;
+}
