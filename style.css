@@ -139,3 +139,17 @@ textarea:focus, input:focus {
 .prediction-bar-glow {
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
+
+/* Insights dark mode fixes */
+.dark .from-amber-50 { --tw-gradient-from: #451a03 !important; }
+.dark .to-orange-50 { --tw-gradient-to: #2d1a0a !important; }
+.dark .border-amber-100 { border-color: #78350f !important; }
+.dark .text-amber-500 { color: #fbbf24 !important; }
+.dark .text-amber-600 { color: #fcd34d !important; }
+.dark .text-amber-700 { color: #fde68a !important; }
+.dark .text-amber-800 { color: #fff7ed !important; }
+.dark .text-green-600 { color: #4ade80 !important; }
+.dark .bg-amber-50 { background-color: #451a03 !important; }
+.dark .bg-amber-100 { background-color: #78350f !important; }
+.dark .bg-indigo-100 { background-color: rgba(67, 56, 202, 0.3) !important; }
+.dark .text-indigo-600 { color: #818cf8 !important; }
