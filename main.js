@@ -6,6 +6,17 @@ function setLanguage(lang) {
     localStorage.setItem('lang', lang);
     document.documentElement.lang = lang;
 
+    // Update buttons active state
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        if (btn.getAttribute('data-lang') === lang) {
+            btn.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+            btn.classList.remove('bg-white/50', 'text-gray-600');
+        } else {
+            btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+            btn.classList.add('bg-white/50', 'text-gray-600');
+        }
+    });
+
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[lang] && translations[lang][key]) {
@@ -92,12 +103,6 @@ function initTheme() {
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     setLanguage(currentLang);
-
-    const langSelect = document.getElementById('lang-select');
-    if (langSelect) {
-        langSelect.value = currentLang;
-        langSelect.addEventListener('change', (e) => setLanguage(e.target.value));
-    }
 
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
